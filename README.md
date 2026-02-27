@@ -117,6 +117,6 @@ users    (1) ──── (N) tickets
 
 | Студент | GitHub | Рөл |
 |---|---|---|
-| 1-студент | @username1 | Backend, API |
+| 1-студент | @abylai017-beck | Backend, API |
 | 2-студент | @username2 | Дерекқор, деплой |
 | 3-студент | @username3 | Тестілеу |
