@@ -10,7 +10,7 @@ import sqlite3, hashlib, secrets, os
 DB_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "cinema.db")
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-# ─── БД ───
+# БД 
 def get_db():
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
@@ -70,12 +70,10 @@ async def lifespan(app: FastAPI):
         UNIQUE (session_id, seat_row, seat_col)
     );
     """)
-    # Seed halls if empty
     if not db.execute("SELECT id FROM halls").fetchone():
         db.execute("INSERT INTO halls (name, rows, cols) VALUES ('Зал 1', 8, 10)")
         db.execute("INSERT INTO halls (name, rows, cols) VALUES ('Зал 2', 6, 12)")
         db.execute("INSERT INTO halls (name, rows, cols) VALUES ('VIP Зал', 5, 8)")
-    # Seed movies if empty
     if not db.execute("SELECT id FROM movies").fetchone():
         movies = [
             ("Дюна: Часть 2", "Продолжение эпической саги", "Фантастика", 166, "https://image.tmdb.org/t/p/w500/1pdfLvkbY9ohJlCjQH2CZjjYVvJ.jpg", 8.5),
@@ -84,7 +82,6 @@ async def lifespan(app: FastAPI):
         ]
         for m in movies:
             db.execute("INSERT INTO movies (title,description,genre,duration,poster_url,rating) VALUES (?,?,?,?,?,?)", m)
-        # Seed sessions
         db.execute("INSERT INTO sessions (movie_id, hall_id, start_time, price) VALUES (1, 1, '2026-03-07 14:00', 2000)")
         db.execute("INSERT INTO sessions (movie_id, hall_id, start_time, price) VALUES (1, 2, '2026-03-07 18:00', 1800)")
         db.execute("INSERT INTO sessions (movie_id, hall_id, start_time, price) VALUES (2, 1, '2026-03-07 20:30', 2500)")
@@ -97,7 +94,6 @@ app = FastAPI(title="CinemaFlow API", version="1.0.0", lifespan=lifespan)
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 security = HTTPBearer(auto_error=False)
 
-# ─── UTILS ───
 def hash_password(password: str, salt: str = None):
     if salt is None:
         salt = secrets.token_hex(16)
@@ -119,7 +115,6 @@ def get_admin(current_user: dict = Depends(get_current_user)):
         raise HTTPException(403, "Только для администраторов")
     return current_user
 
-# ─── MODELS ───
 class RegisterModel(BaseModel):
     username: str = Field(..., min_length=3, max_length=30)
     email: str    = Field(..., min_length=5)
@@ -153,9 +148,7 @@ class TicketBook(BaseModel):
     seat_row:   int
     seat_col:   int
 
-# ════════════════════════════════════════
-#  AUTH
-# ════════════════════════════════════════
+# Аутентификация
 @app.post("/auth/register", tags=["Auth"])
 async def register(data: RegisterModel):
     db = get_db()
@@ -192,9 +185,6 @@ async def login(data: LoginModel):
 async def me(u=Depends(get_current_user)):
     return {"id": u["id"], "username": u["username"], "email": u["email"], "role": u["role"]}
 
-# ════════════════════════════════════════
-#  MOVIES
-# ════════════════════════════════════════
 @app.get("/movies", tags=["Movies"])
 async def get_movies(genre: Optional[str] = None, search: Optional[str] = None):
     db = get_db()
@@ -246,10 +236,6 @@ async def delete_movie(movie_id: int, admin=Depends(get_admin)):
     db.execute("DELETE FROM movies WHERE id=?", (movie_id,))
     db.commit(); db.close()
     return {"status": "success", "deleted_id": movie_id}
-
-# ════════════════════════════════════════
-#  HALLS
-# ════════════════════════════════════════
 @app.get("/halls", tags=["Halls"])
 async def get_halls():
     db = get_db()
