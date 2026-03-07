@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CinemaFlow</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Mulish:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+
+<div id="app">
+
+  <!-- AUTH -->
+  <div id="auth-section" class="auth-wrap hidden">
+    <div class="auth-box" id="login-box">
+      <div class="auth-logo">CINEMA<span>FLOW</span></div>
+      <div class="auth-title">Вход</div>
+      <div class="field"><label>Имя пользователя</label><input id="l-user" type="text" placeholder="username"/></div>
+      <div class="field"><label>Пароль</label><input id="l-pass" type="password" placeholder="••••••"/></div>
+      <button class="btn-auth" id="btn-login" onclick="doLogin()">Войти</button>
+      <div class="auth-switch">Нет аккаунта? <span onclick="showReg()">Зарегистрироваться</span></div>
+    </div>
+    <div class="auth-box hidden" id="reg-box">
+      <div class="auth-logo">CINEMA<span>FLOW</span></div>
+      <div class="auth-title">Регистрация</div>
+      <div class="field"><label>Имя пользователя</label><input id="r-user" type="text" placeholder="username"/></div>
+      <div class="field"><label>Email</label><input id="r-email" type="email" placeholder="email@mail.com"/></div>
+      <div class="field"><label>Пароль</label><input id="r-pass" type="password" placeholder="минимум 6 символов"/></div>
+      <button class="btn-auth" onclick="doRegister()">Создать аккаунт</button>
+      <div class="auth-switch">Есть аккаунт? <span onclick="showLogin()">Войти</span></div>
+    </div>
+  </div>
+
+  <!-- MAIN APP -->
+  <div id="main-section" class="hidden">
+
+    <!-- NAVBAR -->
+    <nav class="navbar">
+      <div class="nav-logo">CINEMA<span>FLOW</span></div>
+      <div class="nav-tabs">
+        <button class="ntab active" data-page="movies" onclick="showPage('movies',this)">🎬 Фильмы</button>
+        <button class="ntab" data-page="sessions" onclick="showPage('sessions',this)">🕐 Расписание</button>
+        <button class="ntab" data-page="mytickets" onclick="showPage('mytickets',this)">🎟️ Мои билеты</button>
+        <button class="ntab admin-only hidden" data-page="admin" onclick="showPage('admin',this)">⚙️ Админ</button>
+      </div>
+      <div class="nav-user">
+        <span id="nav-username"></span>
+        <button class="btn-logout" onclick="doLogout()">Выйти</button>
+      </div>
+    </nav>
+
+    <!-- PAGE: MOVIES -->
+    <div id="page-movies" class="page">
+      <div class="page-header">
+        <h1 class="page-title">Сейчас в кино</h1>
+        <div class="search-row">
+          <div class="search-box">
+            <span>🔍</span>
+            <input type="text" id="movie-search" placeholder="Поиск фильма..." oninput="searchMovies()"/>
+          </div>
+        </div>
+      </div>
+      <div id="movies-grid" class="movies-grid"></div>
+    </div>
+
+    <!-- PAGE: SESSIONS -->
+    <div id="page-sessions" class="page hidden">
+      <div class="page-header">
+        <h1 class="page-title">Расписание сеансов</h1>
+      </div>
+      <div id="sessions-list" class="sessions-list"></div>
+    </div>
+
+    <!-- PAGE: MY TICKETS -->
+    <div id="page-mytickets" class="page hidden">
+      <div class="page-header">
+        <h1 class="page-title">Мои билеты</h1>
+      </div>
+      <div id="my-tickets-list" class="my-tickets"></div>
+    </div>
+
+    <!-- PAGE: ADMIN -->
+    <div id="page-admin" class="page hidden">
+      <div class="page-header">
+        <h1 class="page-title">Панель администратора</h1>
+      </div>
+
+      <div class="admin-grid">
+        <!-- Add movie -->
+        <div class="admin-card">
+          <div class="admin-card-title">➕ Добавить фильм</div>
+          <div class="field"><label>Название *</label><input class="inp" id="a-title" type="text" maxlength="200"/></div>
+          <div class="field"><label>Жанр</label><input class="inp" id="a-genre" type="text"/></div>
+          <div class="field"><label>Описание</label><input class="inp" id="a-desc" type="text"/></div>
+          <div class="field"><label>Длительность (мин)</label><input class="inp" id="a-dur" type="number" value="120" min="1"/></div>
+          <div class="field"><label>Постер URL</label><input class="inp" id="a-poster" type="text"/></div>
+          <div class="field"><label>Рейтинг (0-10)</label><input class="inp" id="a-rating" type="number" value="7.5" min="0" max="10" step="0.1"/></div>
+          <button class="btn-admin" onclick="adminAddMovie()">Добавить фильм</button>
+        </div>
+
+        <!-- Add session -->
+        <div class="admin-card">
+          <div class="admin-card-title">🕐 Добавить сеанс</div>
+          <div class="field"><label>Фильм *</label><select class="inp" id="a-movie-id"></select></div>
+          <div class="field"><label>Зал *</label><select class="inp" id="a-hall-id"></select></div>
+          <div class="field"><label>Дата и время *</label><input class="inp" id="a-time" type="datetime-local"/></div>
+          <div class="field"><label>Цена (тг)</label><input class="inp" id="a-price" type="number" value="1500" min="0"/></div>
+          <button class="btn-admin" onclick="adminAddSession()">Добавить сеанс</button>
+        </div>
+
+        <!-- All tickets -->
+        <div class="admin-card wide">
+          <div class="admin-card-title">🎟️ Все билеты</div>
+          <button class="btn-admin" onclick="adminLoadTickets()" style="margin-bottom:14px">Обновить</button>
+          <div id="admin-tickets"></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- SEAT MODAL -->
+  <div id="seat-modal" class="modal-overlay hidden">
+    <div class="modal-box seat-modal-box">
+      <div class="modal-header">
+        <div>
+          <div class="modal-title" id="seat-modal-title">Выбор места</div>
+          <div class="modal-sub" id="seat-modal-sub"></div>
+        </div>
+        <button class="modal-close" onclick="closeSeatModal()">✕</button>
+      </div>
+      <div class="seat-legend">
+        <span class="leg-item"><span class="leg-dot free"></span>Свободно</span>
+        <span class="leg-item"><span class="leg-dot booked"></span>Занято</span>
+        <span class="leg-item"><span class="leg-dot selected"></span>Выбрано</span>
+      </div>
+      <div class="screen-label">ЭКРАН</div>
+      <div id="seat-map" class="seat-map"></div>
+      <div class="seat-summary" id="seat-summary"></div>
+      <div class="modal-footer">
+        <button class="btn-cancel" onclick="closeSeatModal()">Отмена</button>
+        <button class="btn-book" id="btn-book" onclick="confirmBooking()" disabled>Купить билет</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div id="toast" class="toast"></div>
+<script src="script.js"></script>
+</body>
+</html>
