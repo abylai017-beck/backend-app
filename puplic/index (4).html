@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🎬 Cinema KZ</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', sans-serif; background: #0f0f1a; color: #eee; }
+
+    /* HEADER */
+    header {
+      background: linear-gradient(135deg, #1a1a2e, #16213e);
+      padding: 15px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 2px solid #e94560;
+    }
+    .logo { font-size: 1.5em; font-weight: bold; color: #e94560; }
+    .nav-btns button {
+      background: transparent;
+      color: #eee;
+      border: 1px solid #e94560;
+      padding: 8px 16px;
+      margin-left: 8px;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .nav-btns button:hover { background: #e94560; }
+    #user-info { color: #f4a261; font-size: 0.9em; }
+
+    /* MAIN */
+    main { max-width: 1100px; margin: 30px auto; padding: 0 20px; }
+    h2 { color: #e94560; margin-bottom: 20px; font-size: 1.5em; }
+
+    /* TABS */
+    .tabs { display: flex; gap: 10px; margin-bottom: 25px; flex-wrap: wrap; }
+    .tab-btn {
+      padding: 10px 20px;
+      background: #16213e;
+      border: 1px solid #e94560;
+      color: #eee;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .tab-btn.active, .tab-btn:hover { background: #e94560; }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    /* SEARCH */
+    .search-bar {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+    .search-bar input, .search-bar select {
+      padding: 10px;
+      background: #16213e;
+      border: 1px solid #333;
+      color: #eee;
+      border-radius: 5px;
+      flex: 1;
+      min-width: 150px;
+    }
+    .search-bar button {
+      padding: 10px 20px;
+      background: #e94560;
+      border: none;
+      color: white;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    /* CARDS */
+    .cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; }
+    .card {
+      background: #16213e;
+      border-radius: 10px;
+      padding: 20px;
+      border: 1px solid #1a1a2e;
+      transition: transform 0.3s, border-color 0.3s;
+    }
+    .card:hover { transform: translateY(-3px); border-color: #e94560; }
+    .card h3 { color: #f4a261; margin-bottom: 8px; }
+    .card p  { font-size: 0.85em; color: #aaa; margin-bottom: 5px; }
+    .genre-badge {
+      display: inline-block;
+      background: #e94560;
+      color: white;
+      padding: 2px 8px;
+      border-radius: 20px;
+      font-size: 0.75em;
+      margin-bottom: 10px;
+    }
+    .card button {
+      width: 100%;
+      padding: 8px;
+      background: #e94560;
+      border: none;
+      color: white;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    /* MODAL */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.8);
+      z-index: 100;
+      justify-content: center;
+      align-items: center;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: #16213e;
+      border-radius: 12px;
+      padding: 30px;
+      max-width: 500px;
+      width: 90%;
+      border: 1px solid #e94560;
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+    .modal h3 { color: #e94560; margin-bottom: 20px; }
+    .modal input {
+      width: 100%;
+      padding: 10px;
+      background: #0f0f1a;
+      border: 1px solid #333;
+      color: #eee;
+      border-radius: 5px;
+      margin-bottom: 12px;
+    }
+    .modal button {
+      width: 100%;
+      padding: 12px;
+      background: #e94560;
+      border: none;
+      color: white;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 1em;
+    }
+    .modal-close {
+      float: right;
+      background: transparent;
+      border: none;
+      color: #aaa;
+      font-size: 1.5em;
+      cursor: pointer;
+      width: auto;
+      padding: 0;
+      margin-bottom: 10px;
+    }
+
+    /* SEATS */
+    .seats-container { margin: 15px 0; }
+    .screen-label {
+      text-align: center;
+      background: #e94560;
+      padding: 5px;
+      border-radius: 5px;
+      margin-bottom: 15px;
+      font-size: 0.8em;
+      opacity: 0.8;
+    }
+    .seat-row { display: flex; gap: 8px; justify-content: center; margin-bottom: 8px; align-items: center; }
+    .row-label { color: #aaa; width: 20px; font-size: 0.8em; }
+    .seat {
+      width: 36px;
+      height: 36px;
+      border-radius: 5px 5px 0 0;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.65em;
+      font-weight: bold;
+      transition: all 0.2s;
+    }
+    .seat.free     { background: #2ecc71; color: white; }
+    .seat.booked   { background: #e74c3c; cursor: not-allowed; color: white; }
+    .seat.selected { background: #f4a261; color: white; }
+    .seat.free:hover { transform: scale(1.1); }
+
+    .seat-legend { display: flex; gap: 15px; justify-content: center; margin: 10px 0; font-size: 0.8em; }
+    .legend-item { display: flex; align-items: center; gap: 5px; }
+    .legend-dot { width: 15px; height: 15px; border-radius: 3px; }
+
+    /* ALERT */
+    .alert {
+      padding: 12px 15px;
+      border-radius: 5px;
+      margin-bottom: 15px;
+      font-size: 0.9em;
+    }
+    .alert.success { background: #1e4d2b; border: 1px solid #2ecc71; color: #2ecc71; }
+    .alert.error   { background: #4d1e1e; border: 1px solid #e74c3c; color: #e74c3c; }
+
+    /* TICKETS */
+    .ticket-card {
+      background: #16213e;
+      border-radius: 10px;
+      padding: 20px;
+      margin-bottom: 15px;
+      border-left: 4px solid #e94560;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .ticket-card.cancelled { opacity: 0.5; border-left-color: #666; }
+    .ticket-info h4 { color: #f4a261; margin-bottom: 5px; }
+    .ticket-info p  { font-size: 0.85em; color: #aaa; }
+    .cancel-btn {
+      padding: 8px 15px;
+      background: #c0392b;
+      border: none;
+      color: white;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    /* FORM */
+    label { display: block; color: #aaa; font-size: 0.85em; margin-bottom: 4px; }
+    #message { margin-top: 15px; }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="logo">🎬 Cinema KZ</div>
+  <div>
+    <span id="user-info"></span>
+    <div class="nav-btns">
+      <button id="btn-login-nav"   onclick="openModal('modal-login')">Кіру</button>
+      <button id="btn-register-nav" onclick="openModal('modal-register')">Тіркелу</button>
+      <button id="btn-logout"      onclick="logout()" style="display:none">Шығу</button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <!-- TABS -->
+  <div class="tabs">
+    <button class="tab-btn active" onclick="showTab('tab-movies')">🎥 Фильмдер</button>
+    <button class="tab-btn"       onclick="showTab('tab-sessions')">🕐 Сеанстар</button>
+    <button class="tab-btn"       onclick="showTab('tab-my-tickets')">🎫 Менің билеттерім</button>
+  </div>
+
+  <!-- TAB 1: ФИЛЬМДЕР -->
+  <div id="tab-movies" class="tab-content active">
+    <h2>Кино афишасы</h2>
+    <div class="search-bar">
+      <input type="text" id="search-input" placeholder="🔍 Фильм атауы...">
+      <select id="genre-filter">
+        <option value="">Барлық жанрлар</option>
+      </select>
+      <button onclick="loadMovies()">Іздеу</button>
+    </div>
+    <div class="cards-grid" id="movies-list"></div>
+  </div>
+
+  <!-- TAB 2: СЕАНСТАР -->
+  <div id="tab-sessions" class="tab-content">
+    <h2>Сеанстар кестесі</h2>
+    <div class="search-bar">
+      <input type="date" id="date-filter">
+      <button onclick="loadSessions()">Сүзгілеу</button>
+    </div>
+    <div class="cards-grid" id="sessions-list"></div>
+  </div>
+
+  <!-- TAB 3: МЕНІҢ БИЛЕТТЕРІМ -->
+  <div id="tab-my-tickets" class="tab-content">
+    <h2>Менің билеттерім 🎫</h2>
+    <div id="my-tickets-list"></div>
+  </div>
+</main>
+
+<!-- MODAL: КІРУ -->
+<div class="modal-overlay" id="modal-login">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('modal-login')">✕</button>
+    <h3>Жүйеге кіру</h3>
+    <div id="login-msg"></div>
+    <label>Email</label>
+    <input type="email" id="login-email" placeholder="admin@cinema.kz">
+    <label>Құпия сөз</label>
+    <input type="password" id="login-pass" placeholder="••••••">
+    <button onclick="login()">Кіру</button>
+    <p style="text-align:center; margin-top:10px; font-size:0.85em; color:#aaa">
+      Демо: admin@cinema.kz / admin123
+    </p>
+  </div>
+</div>
+
+<!-- MODAL: ТІРКЕЛУ -->
+<div class="modal-overlay" id="modal-register">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('modal-register')">✕</button>
+    <h3>Тіркелу</h3>
+    <div id="register-msg"></div>
+    <label>Атыңыз</label>
+    <input type="text" id="reg-name" placeholder="Аты-жөніңіз">
+    <label>Email</label>
+    <input type="email" id="reg-email" placeholder="email@mail.kz">
+    <label>Құпия сөз</label>
+    <input type="password" id="reg-pass" placeholder="кемінде 6 символ">
+    <button onclick="register()">Тіркелу</button>
+  </div>
+</div>
+
+<!-- MODAL: ОРЫНДАР -->
+<div class="modal-overlay" id="modal-seats">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('modal-seats')">✕</button>
+    <h3 id="seats-modal-title">Орын таңдаңыз</h3>
+    <div id="seats-msg"></div>
+    <div class="screen-label">🎬 ЭКРАН</div>
+    <div class="seat-legend">
+      <div class="legend-item"><div class="legend-dot" style="background:#2ecc71"></div> Бос</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#e74c3c"></div> Брондалған</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#f4a261"></div> Сіздің таңдауыңыз</div>
+    </div>
+    <div id="seats-map"></div>
+    <p id="selected-info" style="text-align:center; color:#f4a261; margin:10px 0; font-size:0.9em"></p>
+    <button id="buy-btn" onclick="buyTickets()">🎫 Билет сатып алу</button>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// ГЛОБАЛ АЙНЫМАЛЫЛАР
+// ============================================================
+let currentUser    = null;
+let currentSession = null;
+let selectedSeats  = [];
+
+// ============================================================
+// ИНИЦИАЛИЗАЦИЯ
+// ============================================================
+document.addEventListener('DOMContentLoaded', async () => {
+  await checkAuth();
+  await loadMovies();
+  await loadGenres();
+  // Бүгінгі күнді орнату
+  document.getElementById('date-filter').value = new Date().toISOString().split('T')[0];
+});
+
+// ============================================================
+// АУТЕНТИФИКАЦИЯ
+// ============================================================
+async function checkAuth() {
+  try {
+    const res  = await fetch('/api/auth/me');
+    if (res.ok) {
+      currentUser = await res.json();
+      updateNavbar();
+    }
+  } catch(e) {}
+}
+
+function updateNavbar() {
+  if (currentUser) {
+    document.getElementById('user-info').textContent = `👤 ${currentUser.name}`;
+    document.getElementById('btn-login-nav').style.display    = 'none';
+    document.getElementById('btn-register-nav').style.display = 'none';
+    document.getElementById('btn-logout').style.display       = 'inline-block';
+  } else {
+    document.getElementById('user-info').textContent = '';
+    document.getElementById('btn-login-nav').style.display    = 'inline-block';
+    document.getElementById('btn-register-nav').style.display = 'inline-block';
+    document.getElementById('btn-logout').style.display       = 'none';
+  }
+}
+
+async function login() {
+  const email    = document.getElementById('login-email').value;
+  const password = document.getElementById('login-pass').value;
+
+  const res  = await fetch('/api/auth/login', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, password })
+  });
+  const data = await res.json();
+
+  if (res.ok) {
+    currentUser = data.user;
+    updateNavbar();
+    closeModal('modal-login');
+    showAlert('login-msg', `Қош келдіңіз, ${data.user.name}!`, 'success');
+  } else {
+    showAlert('login-msg', data.error, 'error');
+  }
+}
+
+async function register() {
+  const name     = document.getElementById('reg-name').value;
+  const email    = document.getElementById('reg-email').value;
+  const password = document.getElementById('reg-pass').value;
+
+  const res  = await fetch('/api/auth/register', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name, email, password })
+  });
+  const data = await res.json();
+
+  if (res.ok) {
+    showAlert('register-msg', 'Тіркелу сәтті! Енді кіруіңіз мүмкін.', 'success');
+  } else {
+    const errMsg = data.errors ? data.errors.map(e => e.msg).join(', ') : data.error;
+    showAlert('register-msg', errMsg, 'error');
+  }
+}
+
+async function logout() {
+  await fetch('/api/auth/logout', { method: 'POST' });
+  currentUser = null;
+  updateNavbar();
+}
+
+// ============================================================
+// ФИЛЬМДЕР
+// ============================================================
+async function loadMovies() {
+  const search = document.getElementById('search-input').value;
+  const genre  = document.getElementById('genre-filter').value;
+
+  let url = '/api/movies?';
+  if (search) url += `search=${encodeURIComponent(search)}&`;
+  if (genre)  url += `genre=${encodeURIComponent(genre)}`;
+
+  const res  = await fetch(url);
+  const data = await res.json();
+
+  const container = document.getElementById('movies-list');
+  if (data.movies.length === 0) {
+    container.innerHTML = '<p style="color:#aaa">Фильм табылмады</p>';
+    return;
+  }
+
+  container.innerHTML = data.movies.map(movie => `
+    <div class="card">
+      <span class="genre-badge">${movie.genre}</span>
+      <h3>${movie.title}</h3>
+      <p>⏱ ${movie.duration} минут</p>
+      <p>${movie.description || ''}</p>
+      <button onclick="showMovieSessions(${movie.id}, '${escapeHtml(movie.title)}')">
+        🎬 Сеанстарды көру
+      </button>
+    </div>
+  `).join('');
+}
+
+async function loadGenres() {
+  const res    = await fetch('/api/movies/genres');
+  const genres = await res.json();
+  const sel    = document.getElementById('genre-filter');
+  genres.forEach(g => {
+    const opt = document.createElement('option');
+    opt.value = g; opt.textContent = g;
+    sel.appendChild(opt);
+  });
+}
+
+async function showMovieSessions(movieId, movieTitle) {
+  showTab('tab-sessions');
+  await loadSessions(movieId);
+}
+
+// ============================================================
+// СЕАНСТАР
+// ============================================================
+async function loadSessions(movieId = null) {
+  const date = document.getElementById('date-filter').value;
+  let url    = '/api/sessions?';
+  if (movieId) url += `movie_id=${movieId}&`;
+  if (date)    url += `date=${date}`;
+
+  const res  = await fetch(url);
+  const data = await res.json();
+  const container = document.getElementById('sessions-list');
+
+  if (data.sessions.length === 0) {
+    container.innerHTML = '<p style="color:#aaa">Сеанс табылмады</p>';
+    return;
+  }
+
+  container.innerHTML = data.sessions.map(s => `
+    <div class="card">
+      <h3>${s.movie_title}</h3>
+      <span class="genre-badge">${s.genre}</span>
+      <p>📅 ${formatDate(s.date_time)}</p>
+      <p>🏛 ${s.hall}</p>
+      <p>⏱ ${s.duration} мин</p>
+      <p>💰 ${s.price} тг</p>
+      <p>💺 Бос орын: <strong style="color:#2ecc71">${s.free_seats}</strong></p>
+      <button onclick="openSeats(${s.id}, '${escapeHtml(s.movie_title)}', ${s.price})">
+        🎫 Орын таңдау
+      </button>
+    </div>
+  `).join('');
+}
+
+// ============================================================
+// ОРЫНДАР ТАҢДАУ
+// ============================================================
+async function openSeats(sessionId, movieTitle, price) {
+  if (!currentUser) {
+    openModal('modal-login');
+    return;
+  }
+
+  currentSession = { id: sessionId, price };
+  selectedSeats  = [];
+  document.getElementById('seats-modal-title').textContent =
+    `${movieTitle} — орын таңдаңыз`;
+  document.getElementById('seats-msg').innerHTML = '';
+  document.getElementById('selected-info').textContent = '';
+
+  const res  = await fetch(`/api/sessions/${sessionId}/seats`);
+  const data = await res.json();
+
+  const map = document.getElementById('seats-map');
+  map.innerHTML = '';
+
+  Object.entries(data.seatMap).forEach(([rowLabel, seats]) => {
+    const rowDiv = document.createElement('div');
+    rowDiv.className = 'seat-row';
+    rowDiv.innerHTML = `<span class="row-label">${rowLabel}</span>`;
+
+    seats.forEach(seat => {
+      const seatDiv = document.createElement('div');
+      seatDiv.className = `seat ${seat.is_booked ? 'booked' : 'free'}`;
+      seatDiv.textContent = seat.seat_number.slice(1); // тек нөмірін көрсет
+      seatDiv.dataset.id     = seat.id;
+      seatDiv.dataset.number = seat.seat_number;
+
+      if (!seat.is_booked) {
+        seatDiv.onclick = () => toggleSeat(seatDiv, seat.seat_number, price);
+      }
+      rowDiv.appendChild(seatDiv);
+    });
+    map.appendChild(rowDiv);
+  });
+
+  openModal('modal-seats');
+}
+
+function toggleSeat(el, seatNumber, price) {
+  if (el.classList.contains('selected')) {
+    el.classList.remove('selected');
+    el.classList.add('free');
+    selectedSeats = selectedSeats.filter(s => s !== seatNumber);
+  } else {
+    el.classList.remove('free');
+    el.classList.add('selected');
+    selectedSeats.push(seatNumber);
+  }
+  updateSelectedInfo(price);
+}
+
+function updateSelectedInfo(price) {
+  const info = document.getElementById('selected-info');
+  if (selectedSeats.length === 0) {
+    info.textContent = '';
+  } else {
+    const total = selectedSeats.length * price;
+    info.textContent =
+      `Таңдалды: ${selectedSeats.join(', ')} | Жалпы: ${total} тг`;
+  }
+}
+
+async function buyTickets() {
+  if (selectedSeats.length === 0) {
+    showAlert('seats-msg', 'Орын таңдаңыз!', 'error');
+    return;
+  }
+
+  const res  = await fetch('/api/tickets/book', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      session_id:   currentSession.id,
+      seat_numbers: selectedSeats
+    })
+  });
+  const data = await res.json();
+
+  if (res.ok) {
+    showAlert('seats-msg',
+      `✅ ${data.message} Жалпы: ${data.totalPrice} тг`, 'success');
+    selectedSeats = [];
+    // Орындар картасын жаңарту
+    await openSeats(currentSession.id,
+      document.getElementById('seats-modal-title').textContent.split(' —')[0],
+      currentSession.price);
+    showAlert('seats-msg',
+      `✅ Билет сатып алынды! Жалпы: ${data.totalPrice} тг`, 'success');
+  } else {
+    showAlert('seats-msg', data.error, 'error');
+  }
+}
+
+// ============================================================
+// МЕНІҢ БИЛЕТТЕРІМ
+// ============================================================
+async function loadMyTickets() {
+  if (!currentUser) {
+    document.getElementById('my-tickets-list').innerHTML =
+      '<p style="color:#aaa">Билеттерді көру үшін жүйеге кіріңіз</p>';
+    return;
+  }
+
+  const res  = await fetch('/api/tickets/my');
+  const data = await res.json();
+  const container = document.getElementById('my-tickets-list');
+
+  if (data.tickets.length === 0) {
+    container.innerHTML = '<p style="color:#aaa">Сізде әлі билет жоқ</p>';
+    return;
+  }
+
+  container.innerHTML = data.tickets.map(t => `
+    <div class="ticket-card ${t.status === 'cancelled' ? 'cancelled' : ''}">
+      <div class="ticket-info">
+        <h4>🎬 ${t.movie_title}</h4>
+        <p>📅 ${formatDate(t.date_time)} | 🏛 ${t.hall}</p>
+        <p>💺 Орын: <strong>${t.seat_number}</strong> | 💰 ${t.total_price} тг</p>
+        <p>Күйі: ${t.status === 'active' ? '✅ Белсенді' : '❌ Болдырмаланған'}</p>
+      </div>
+      ${t.status === 'active' ? `
+        <button class="cancel-btn" onclick="cancelTicket(${t.ticket_id})">Болдырмау</button>
+      ` : ''}
+    </div>
+  `).join('');
+}
+
+async function cancelTicket(ticketId) {
+  if (!confirm('Билетті шынымен болдырмайсыз ба?')) return;
+
+  const res  = await fetch(`/api/tickets/${ticketId}/cancel`, { method: 'DELETE' });
+  const data = await res.json();
+
+  if (res.ok) {
+    await loadMyTickets();
+  } else {
+    alert(data.error);
+  }
+}
+
+// ============================================================
+// КӨМЕКШІ ФУНКЦИЯЛАР
+// ============================================================
+function showTab(tabId) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(tabId).classList.add('active');
+  event.target.classList.add('active');
+
+  if (tabId === 'tab-my-tickets') loadMyTickets();
+  if (tabId === 'tab-sessions')   loadSessions();
+}
+
+function openModal(id)  { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+function showAlert(containerId, message, type) {
+  const el = document.getElementById(containerId);
+  el.innerHTML = `<div class="alert ${type}">${message}</div>`;
+  setTimeout(() => { el.innerHTML = ''; }, 4000);
+}
+
+function formatDate(dt) {
+  return new Date(dt).toLocaleString('kk-KZ', {
+    year: 'numeric', month: 'long', day: 'numeric',
+    hour: '2-digit', minute: '2-digit'
+  });
+}
+
+function escapeHtml(str) {
+  return String(str).replace(/'/g, "\\'").replace(/"/g, '&quot;');
+}
+</script>
+</body>
+</html>
