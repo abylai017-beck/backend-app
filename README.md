@@ -14,6 +14,20 @@ Node.js, Express.js және SQLite негізінде жасалған кино
 | express-session | Сессиялар |
 | express-validator | Валидация |
 
+
+### 📊 ERD диаграмма:
+
+![ERD](./docs/erd.png)
+
+
+## 🚀 API Documentation
+
+Толық API құжаттамасы:
+
+👉 [API_DOCS.md](./API_DOCS.md)
+
+
+
 ## 📁 Жоба құрылымы
 ```
 cinema-app/
